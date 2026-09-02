@@ -1,37 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/meal_db_service.dart';
-import 'meals_list_screen.dart';
+import '../utils/constants.dart';
+import 'recipes_list_screen.dart';
 
-class InternationalTab extends StatefulWidget {
+class InternationalTab extends StatelessWidget {
   const InternationalTab({super.key});
-
-  @override
-  State<InternationalTab> createState() => _InternationalTabState();
-}
-
-class _InternationalTabState extends State<InternationalTab> {
-  List<String> areas = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAreas();
-  }
-
-  Future<void> _loadAreas() async {
-    try {
-      final data = await MealDBService.getAreas();
-      setState(() {
-        areas = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,49 +11,46 @@ class _InternationalTabState extends State<InternationalTab> {
       appBar: AppBar(
         title: const Text('International Cuisine'),
         centerTitle: true,
+        backgroundColor: const Color(0xFF2E7D32),
+        foregroundColor: Colors.white,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: areas.length,
-              itemBuilder: (context, index) {
-                final area = areas[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                      child: Text(
-                        area.substring(0, 1),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: FoodCategories.international.length,
+        itemBuilder: (context, index) {
+          final cuisine = FoodCategories.international[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 2,
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: const Color(0xFFE8F5E9),
+                child: Text(
+                  cuisine['name']![0],
+                  style: const TextStyle(
+                    color: Color(0xFF2E7D32),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              title: Text(cuisine['name']!, style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('Explore ${cuisine['name']} recipes'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF2E7D32)),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RecipesListScreen(
+                      title: cuisine['name']!,
+                      query: cuisine['query']!,
                     ),
-                    title: Text(
-                      area,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text('Explore $area dishes'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MealsListScreen(
-                            title: area,
-                            type: 'area',
-                            value: area,
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 );
               },
             ),
+          );
+        },
+      ),
     );
   }
 }
