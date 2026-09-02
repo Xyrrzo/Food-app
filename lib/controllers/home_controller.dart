@@ -1,12 +1,17 @@
-import '../services/foodish_service.dart';
-import '../models/food_image.dart';
+import '../services/meal_db_service.dart';
+import '../models/category.dart';
+import '../models/meal.dart';
 
 class HomeController {
-  List<FoodImage> randomImages = [];
+  List<Category> categories = [];
+  Meal? randomMeal;
   bool isLoading = true;
 
-  Future<void> loadRandomImages() async {
-    randomImages = await FoodishService.getMultipleImages(5);
+  Future<void> loadData() async {
+    final cats = await MealDBService.getCategories();
+    final random = await MealDBService.getRandomMeal();
+    categories = cats;
+    randomMeal = random;
     isLoading = false;
   }
 }

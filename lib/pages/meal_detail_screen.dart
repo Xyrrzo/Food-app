@@ -22,6 +22,21 @@ class MealDetailScreen extends StatelessWidget {
                   meal.imageUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return Container(
+                      color: const Color(0xFFE8F5E9),
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stack) => Container(
+                    color: const Color(0xFFE8F5E9),
+                    child: const Center(
+                      child: Icon(Icons.restaurant, size: 80, color: Color(0xFF2E7D32)),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -44,19 +59,9 @@ class MealDetailScreen extends StatelessWidget {
                     runSpacing: 8,
                     children: [
                       if (meal.category != null)
-                        _buildInfoChip(
-                          context,
-                          meal.category!,
-                          Icons.category,
-                          Theme.of(context).colorScheme.primaryContainer,
-                        ),
+                        _buildInfoChip(context, meal.category!, Icons.category, const Color(0xFFE8F5E9)),
                       if (meal.area != null)
-                        _buildInfoChip(
-                          context,
-                          meal.area!,
-                          Icons.location_on,
-                          Theme.of(context).colorScheme.secondaryContainer,
-                        ),
+                        _buildInfoChip(context, meal.area!, Icons.location_on, const Color(0xFFE8F5E9)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -64,6 +69,7 @@ class MealDetailScreen extends StatelessWidget {
                     'Ingredients',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2E7D32),
                         ),
                   ),
                   const SizedBox(height: 12),
@@ -74,10 +80,10 @@ class MealDetailScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
+                            width: 10,
+                            height: 10,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF2E7D32),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -97,15 +103,13 @@ class MealDetailScreen extends StatelessWidget {
                     'Instructions',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: const Color(0xFF2E7D32),
                         ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     meal.instructions ?? 'No instructions available.',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      height: 1.6,
-                    ),
+                    style: const TextStyle(fontSize: 15, height: 1.6),
                   ),
                   const SizedBox(height: 32),
                 ],
@@ -117,14 +121,9 @@ class MealDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(
-    BuildContext context,
-    String label,
-    IconData icon,
-    Color bgColor,
-  ) {
+  Widget _buildInfoChip(BuildContext context, String label, IconData icon, Color bgColor) {
     return Chip(
-      avatar: Icon(icon, size: 18),
+      avatar: Icon(icon, size: 18, color: const Color(0xFF2E7D32)),
       label: Text(label),
       backgroundColor: bgColor,
     );

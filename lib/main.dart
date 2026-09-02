@@ -18,20 +18,20 @@ class FoodExplorerApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E7D32),      
-          primary: const Color(0xFF2E7D32),        
-          secondary: const Color(0xFF81C784),       
-          tertiary: const Color(0xFF43A047),       
+          seedColor: const Color(0xFF2E7D32),
+          primary: const Color(0xFF2E7D32),
+          secondary: const Color(0xFF81C784),
+          tertiary: const Color(0xFF43A047),
           brightness: Brightness.light,
         ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF66BB6A),      
-          primary: const Color(0xFF66BB6A),         
-          secondary: const Color(0xFF2E7D32),       
-          tertiary: const Color(0xFF81C784),        
+          seedColor: const Color(0xFF66BB6A),
+          primary: const Color(0xFF66BB6A),
+          secondary: const Color(0xFF2E7D32),
+          tertiary: const Color(0xFF81C784),
           brightness: Brightness.dark,
         ),
         useMaterial3: true,

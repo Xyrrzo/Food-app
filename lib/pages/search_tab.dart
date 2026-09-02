@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/recipe.dart';
-import '../services/api_ninjas_service.dart';
-import '../widgets/recipe_card.dart';
+import '../models/meal_preview.dart';
+import '../services/meal_db_service.dart';
+import '../widgets/meal_card.dart';
 
 class SearchTab extends StatefulWidget {
   const SearchTab({super.key});
@@ -12,7 +12,7 @@ class SearchTab extends StatefulWidget {
 
 class _SearchTabState extends State<SearchTab> {
   final TextEditingController _controller = TextEditingController();
-  List<Recipe> results = [];
+  List<MealPreview> results = [];
   bool isSearching = false;
   String? errorMessage;
 
@@ -26,9 +26,9 @@ class _SearchTabState extends State<SearchTab> {
     });
 
     try {
-      final recipes = await ApiNinjasService.searchRecipes(query.trim());
+      final meals = await MealDBService.searchMeals(query.trim());
       setState(() {
-        results = recipes;
+        results = meals;
         isSearching = false;
       });
     } catch (e) {
@@ -55,7 +55,7 @@ class _SearchTabState extends State<SearchTab> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Search recipes (e.g., chicken, pasta, adobo...)',
+                hintText: 'Search meals (e.g., chicken, pasta, adobo...)',
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF2E7D32)),
                 suffixIcon: _controller.text.isNotEmpty
                     ? IconButton(
@@ -108,7 +108,9 @@ class _SearchTabState extends State<SearchTab> {
               ),
             ),
           if (isSearching)
-            const Expanded(child: Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32))))
+            const Expanded(
+              child: Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32))),
+            )
           else if (results.isNotEmpty)
             Expanded(
               child: GridView.builder(
@@ -120,7 +122,7 @@ class _SearchTabState extends State<SearchTab> {
                   mainAxisSpacing: 12,
                 ),
                 itemCount: results.length,
-                itemBuilder: (context, index) => RecipeCard(recipe: results[index]),
+                itemBuilder: (context, index) => MealCard(meal: results[index]),
               ),
             )
           else if (_controller.text.isNotEmpty && !isSearching && errorMessage == null)
@@ -131,7 +133,7 @@ class _SearchTabState extends State<SearchTab> {
                   children: [
                     Icon(Icons.search_off, size: 64, color: Colors.grey),
                     SizedBox(height: 16),
-                    Text('No recipes found', style: TextStyle(color: Colors.grey)),
+                    Text('No meals found', style: TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
@@ -142,8 +144,11 @@ class _SearchTabState extends State<SearchTab> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.restaurant_menu,
-                        size: 80, color: const Color(0xFF2E7D32).withOpacity(0.3)),
+                    Icon(
+                      Icons.restaurant_menu,
+                      size: 80,
+                      color: const Color(0xFF2E7D32).withOpacity(0.3),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Search for delicious recipes',

@@ -57,9 +57,7 @@ class _MealsListScreenState extends State<MealsListScreen> {
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -69,9 +67,11 @@ class _MealsListScreenState extends State<MealsListScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         centerTitle: true,
+        backgroundColor: const Color(0xFF2E7D32),
+        foregroundColor: Colors.white,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)))
           : meals.isEmpty
               ? const Center(
                   child: Column(
@@ -92,9 +92,7 @@ class _MealsListScreenState extends State<MealsListScreen> {
                     mainAxisSpacing: 12,
                   ),
                   itemCount: meals.length,
-                  itemBuilder: (context, index) {
-                    return MealCard(meal: meals[index]);
-                  },
+                  itemBuilder: (context, index) => MealCard(meal: meals[index]),
                 ),
     );
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../controllers/home_controller.dart';
-import '../models/food_image.dart';
-import '../services/foodish_service.dart';
-import 'recipes_list_screen.dart';
+import '../models/category.dart';
+import '../models/meal.dart';
+import 'meals_list_screen.dart';
+import 'meal_detail_screen.dart';
 
 class ExploreTab extends StatefulWidget {
   const ExploreTab({super.key});
@@ -13,20 +14,22 @@ class ExploreTab extends StatefulWidget {
 
 class _ExploreTabState extends State<ExploreTab> {
   final HomeController _controller = HomeController();
-  List<FoodImage> randomImages = [];
+  List<Category> categories = [];
+  Meal? randomMeal;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadImages();
+    _loadData();
   }
 
-  Future<void> _loadImages() async {
+  Future<void> _loadData() async {
     try {
-      await _controller.loadRandomImages();
+      await _controller.loadData();
       setState(() {
-        randomImages = _controller.randomImages;
+        categories = _controller.categories;
+        randomMeal = _controller.randomMeal;
         isLoading = false;
       });
     } catch (e) {
@@ -39,10 +42,14 @@ class _ExploreTabState extends State<ExploreTab> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
-          expandedHeight: 180,
+          expandedHeight: 200,
+          floating: false,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: const Text('Food Explorer', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text(
+              'Food Explorer',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             background: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -52,76 +59,130 @@ class _ExploreTabState extends State<ExploreTab> {
                     Color(0xFF1B5E20),   // Dark Green
                     Color(0xFF2E7D32),   // Green 800
                     Color(0xFF43A047),   // Green 600
+                    Color(0xFF66BB6A),   // Green 400
                   ],
+                ),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.restaurant_menu,
+                  size: 80,
+                  color: Colors.white24,
                 ),
               ),
             ),
           ),
         ),
         if (isLoading)
-          const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+          const SliverFillRemaining(
+            child: Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32))),
+          )
         else ...[
-          // Random Food Images Carousel
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Food Gallery', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 180,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: randomImages.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              randomImages[index].imageUrl,
-                              width: 240,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return Container(
-                                  width: 240,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Center(child: CircularProgressIndicator()),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 240,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
+          if (randomMeal != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.auto_awesome, color: Color(0xFF2E7D32)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Meal of the Day',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () => _navigateToDetail(randomMeal!),
+                      child: Hero(
+                        tag: 'meal-${randomMeal!.id}',
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 4,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Stack(
+                                children: [
+                                  Image.network(
+                                    randomMeal!.imageUrl,
+                                    height: 200,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return Container(
+                                        height: 200,
+                                        color: const Color(0xFFE8F5E9),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.transparent,
+                                            Colors.black.withOpacity(0.8),
+                                          ],
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(16),
+                                      child: Text(
+                                        randomMeal!.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    if (randomMeal!.category != null)
+                                      _buildChip(randomMeal!.category!, Icons.category),
+                                    const SizedBox(width: 8),
+                                    if (randomMeal!.area != null)
+                                      _buildChip(randomMeal!.area!, Icons.location_on),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          // Quick Categories
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Quick Bites',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                'Categories',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
           ),
@@ -130,44 +191,65 @@ class _ExploreTabState extends State<ExploreTab> {
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 1.3,
+                childAspectRatio: 1.2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final cat = FoodishService.categories[index];
+                  final category = categories[index];
                   return GestureDetector(
-                    onTap: () => _searchCategory(cat),
+                    onTap: () => _navigateToCategory(category.name),
                     child: Card(
                       clipBehavior: Clip.antiAlias,
                       elevation: 2,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              const Color(0xFF2E7D32).withOpacity(0.8),
-                              const Color(0xFF66BB6A).withOpacity(0.6),
-                            ],
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(
+                            category.imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return Container(
+                                color: const Color(0xFFE8F5E9),
+                                child: const Center(
+                                  child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+                                ),
+                              );
+                            },
                           ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            cat.toUpperCase(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white,
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                          Positioned(
+                            bottom: 12,
+                            left: 12,
+                            right: 12,
+                            child: Text(
+                              category.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
                 },
-                childCount: FoodishService.categories.length,
+                childCount: categories.length,
               ),
             ),
           ),
@@ -176,13 +258,29 @@ class _ExploreTabState extends State<ExploreTab> {
     );
   }
 
-  void _searchCategory(String category) {
+  Widget _buildChip(String label, IconData icon) {
+    return Chip(
+      avatar: Icon(icon, size: 16, color: const Color(0xFF2E7D32)),
+      label: Text(label),
+      backgroundColor: const Color(0xFFE8F5E9),
+    );
+  }
+
+  void _navigateToDetail(Meal meal) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MealDetailScreen(meal: meal)),
+    );
+  }
+
+  void _navigateToCategory(String category) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RecipesListScreen(
-          title: category.toUpperCase(),
-          query: category,
+        builder: (context) => MealsListScreen(
+          title: category,
+          type: 'category',
+          value: category,
         ),
       ),
     );

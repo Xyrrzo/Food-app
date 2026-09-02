@@ -15,17 +15,16 @@ class MealCard extends StatelessWidget {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const Center(child: CircularProgressIndicator()),
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+          ),
         );
-
         try {
           final fullMeal = await MealDBService.getMealById(meal.id);
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => MealDetailScreen(meal: fullMeal),
-            ),
+            MaterialPageRoute(builder: (context) => MealDetailScreen(meal: fullMeal)),
           );
         } catch (e) {
           Navigator.pop(context);
@@ -48,12 +47,18 @@ class MealCard extends StatelessWidget {
                   loadingBuilder: (context, child, progress) {
                     if (progress == null) return child;
                     return Container(
-                      color: Colors.grey[300],
+                      color: const Color(0xFFE8F5E9),
                       child: const Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
                       ),
                     );
                   },
+                  errorBuilder: (context, error, stack) => Container(
+                    color: const Color(0xFFE8F5E9),
+                    child: const Center(
+                      child: Icon(Icons.restaurant, size: 40, color: Color(0xFF2E7D32)),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -63,10 +68,7 @@ class MealCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Text(
                   meal.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
